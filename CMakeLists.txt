@@ -29,9 +29,14 @@ INCLUDE(CheckCXXCompilerFlag)
 INCLUDE(GNUInstallDirs)
 
 ###################################################################
-# add server and client CMakeLists.txt
+# add server and client libs to  CMakeLists.txt
 ###################################################################
 add_subdirectory(jsBridge++)
+
+###################################################################
+# add server and client applications
+###################################################################
+add_subdirectory(apps)
 
 ###################################################################
 # Option dependent builds (e.g. testing, benchmarks, ...)
