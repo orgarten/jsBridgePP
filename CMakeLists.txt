@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11.0)
-PROJECT(MyProject)
+PROJECT(jsBridge++)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 ###################################################################
@@ -29,50 +29,37 @@ INCLUDE(CheckCXXCompilerFlag)
 INCLUDE(GNUInstallDirs)
 
 ###################################################################
-# Handling options to find packages etc
+# add server and client CMakeLists.txt
 ###################################################################
-
-# examplary use of option
-IF (MYPROJECT_VAR1)
-    #find_package(<somepackage> <version>)
-ENDIF ()
-
-
-###################################################################
-# main libray target
-###################################################################
-
-add_library(myproject myproject/lib.h)
-set_target_properties(myproject PROPERTIES LINKER_LANGUAGE CXX)
+add_subdirectory(jsBridge++)
 
 ###################################################################
 # Option dependent builds (e.g. testing, benchmarks, ...)
 ###################################################################
 
 add_subdirectory(tests)
-add_subdirectory(benchmarks)
 
 ###################################################################
 # PACKAGING (create config files)
 ###################################################################
 
-SET(MYPROJECT_VERSION_NUMBER 1.0.0)
-SET(MYPROJECT_VERSION_STRING ${MYPROJECT_VERSION_NUMBER})
-SET(MYPROJECT_DEFINITIONS "")
-SET(MYPROJECT_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-SET(MYPROJECT_ROOT_DIR ${CMAKE_INSTALL_PREFIX})
+SET(JSBRIDGEPP_VERSION_NUMBER 1.0.0)
+SET(JSBRIDGEPP_VERSION_STRING ${JSBRIDGEPP_VERSION_NUMBER})
+SET(JSBRIDGEPP_DEFINITIONS "")
+SET(JSBRIDGEPP_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+SET(JSBRIDGEPP_ROOT_DIR ${CMAKE_INSTALL_PREFIX})
 
 INCLUDE(CMakePackageConfigHelpers)
 
 CONFIGURE_PACKAGE_CONFIG_FILE(
-        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MyProject.cmake.in
-        ${CMAKE_CURRENT_BINARY_DIR}/MyProjectConfig.cmake
-        PATH_VARS MYPROJECT_INCLUDE_DIR MYPROJECT_ROOT_DIR
-        INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/MyProject/cmake
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/jsBridgePP.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/jsBridgePPConfig.cmake
+        PATH_VARS JSBRIDGEPP_INCLUDE_DIR JSBRIDGEPP_ROOT_DIR
+        INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/jsBridgePP/cmake
         NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
-WRITE_BASIC_PACKAGE_VERSION_FILE(MyProjectConfigVersion.cmake VERSION ${MYPROJECT_VERSION_NUMBER} COMPATIBILITY SameMajorVersion)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MyProjectConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/MyProjectConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_DATADIR}/MyProject/cmake)
-INSTALL(DIRECTORY MyProject DESTINATION include)
+WRITE_BASIC_PACKAGE_VERSION_FILE(jsBridgePPConfigVersion.cmake VERSION ${JSBRIDGEPP_VERSION_NUMBER} COMPATIBILITY SameMajorVersion)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/jsBridgePPConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/jsBridgePPConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_DATADIR}/jsBridgePP/cmake)
+INSTALL(DIRECTORY jsBridgePP DESTINATION include)
 
 
