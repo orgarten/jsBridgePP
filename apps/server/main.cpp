@@ -6,6 +6,6 @@
 
 int main() {
   Server server{};
-  std::cout << "Server main \n";
+  server.run(9002);
   return 0;
 }
