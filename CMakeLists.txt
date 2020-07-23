@@ -1,5 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11.0)
 PROJECT(jsBridge++)
+enable_language(CXX)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 ###################################################################
@@ -22,6 +24,7 @@ ELSE ()
     add_compile_options(-std=c++17 -O3 -Wall -fPIC -funroll-loops -march=native)
 ENDIF (CMAKE_COMPILER_IS_GNUCXX)
 
+find_package(websocketpp)
 
 ## Allows us the check whether a compiler accepts flags or not
 INCLUDE(CheckCXXCompilerFlag)
@@ -41,8 +44,10 @@ add_subdirectory(apps)
 ###################################################################
 # Option dependent builds (e.g. testing, benchmarks, ...)
 ###################################################################
-
-add_subdirectory(tests)
+IF(BUILD_TEST)
+    ENABLE_TESTING()
+    add_subdirectory(tests)
+ENDIF()
 
 ###################################################################
 # PACKAGING (create config files)
