@@ -6,6 +6,7 @@
 #define JSBRIDGE_JSBRIDGE_LIB_SERVER_SERVER_H_
 
 #include <iostream>
+#include <set>
 
 #define ASIO_STANDALONE
 
@@ -21,26 +22,6 @@ using websocketpp::lib::bind;
 // pull out the type of messages sent by our config
 typedef ws_server::message_ptr message_ptr;
 
-// Define a callback to handle incoming messages
-void on_message(ws_server* s, const websocketpp::connection_hdl hdl, const message_ptr msg) {
-  std::cout << "on_message called with hdl: " << hdl.lock().get()
-            << " and message: " << msg->get_payload()
-            << "\n";
-
-  // check for a special command to instruct the server to stop listening so
-  // it can be cleanly exited.
-  if (msg->get_payload() == "stop") {
-    s->stop();
-    return;
-  }
-
-  try {
-    s->send(hdl, msg->get_payload(), msg->get_opcode());
-  } catch (websocketpp::exception const & e) {
-    std::cout << "Echo failed because: "
-              << "(" << e.what() << ")" << std::endl;
-  }
-}
 
 class Server {
 public:
@@ -55,7 +36,9 @@ public:
 
     // Initialize Asio
     endpoint.init_asio();
-    endpoint.set_message_handler(bind(&on_message,&endpoint,::_1,::_2));
+    endpoint.set_open_handler(bind(&Server::on_open, this, ::_1));
+    endpoint.set_close_handler(bind(&Server::on_close, this, ::_1));
+    endpoint.set_message_handler(bind(&Server::on_message,this,::_1,::_2));
   }
 
   void run(const uint32_t port) {
@@ -68,8 +51,41 @@ public:
     endpoint.run();
   }
 
+  void on_open(websocketpp::connection_hdl hdl) {
+    connections.insert(hdl);
+  }
+
+  void on_close(websocketpp::connection_hdl hdl) {
+    connections.erase(hdl);
+  }
+
+  // Define a callback to handle incoming messages
+  void on_message(const websocketpp::connection_hdl hdl, const message_ptr msg) {
+    std::cout << "on_message called with hdl: " << hdl.lock().get()
+              << " and message: " << msg->get_payload()
+              << "\n";
+
+    // check for a special command to instruct the server to stop listening so
+    // it can be cleanly exited.
+    if (msg->get_payload() == "stop") {
+      endpoint.stop();
+      return;
+    }
+
+    try {
+      for(auto it : connections)
+      endpoint.send(it, msg->get_payload(), msg->get_opcode());
+    } catch (websocketpp::exception const & e) {
+      std::cout << "Echo failed because: "
+                << "(" << e.what() << ")" << std::endl;
+    }
+  }
+
 private:
   ws_server endpoint;
+
+  using connection_list = std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>>;
+  connection_list connections;
 };
 
 
