@@ -13,21 +13,19 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
-using ws_server =  websocketpp::server<websocketpp::config::asio>;
+using ws_server = websocketpp::server<websocketpp::config::asio>;
 
+using websocketpp::lib::bind;
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
-using websocketpp::lib::bind;
 
 // pull out the type of messages sent by our config
 typedef ws_server::message_ptr message_ptr;
 
-
 class Server {
 public:
-
 public:
-  explicit Server(){
+  explicit Server() {
     // Set logging settings
     //endpoint.set_error_channels(websocketpp::log::elevel::all);
     //endpoint.set_access_channels(websocketpp::log::alevel::frame_payload);
@@ -36,9 +34,10 @@ public:
 
     // Initialize Asio
     endpoint.init_asio();
+
     endpoint.set_open_handler(bind(&Server::on_open, this, ::_1));
     endpoint.set_close_handler(bind(&Server::on_close, this, ::_1));
-    endpoint.set_message_handler(bind(&Server::on_message,this,::_1,::_2));
+    endpoint.set_message_handler(bind(&Server::on_message, this, ::_1, ::_2));
   }
 
   void run(const uint32_t port) {
@@ -51,19 +50,13 @@ public:
     endpoint.run();
   }
 
-  void on_open(websocketpp::connection_hdl hdl) {
-    connections.insert(hdl);
-  }
+  void on_open(websocketpp::connection_hdl hdl) { connections.insert(hdl); }
 
-  void on_close(websocketpp::connection_hdl hdl) {
-    connections.erase(hdl);
-  }
+  void on_close(websocketpp::connection_hdl hdl) { connections.erase(hdl); }
 
   // Define a callback to handle incoming messages
-  void on_message(const websocketpp::connection_hdl hdl, const message_ptr msg) {
-    std::cout << "on_message called with hdl: " << hdl.lock().get()
-              << " and message: " << msg->get_payload()
-              << "\n";
+  void on_message(websocketpp::connection_hdl hdl, const message_ptr msg) {
+    std::cout << "on_message called with hdl: " << hdl.lock().get() << " and message: " << msg->get_payload() << "\n";
 
     // check for a special command to instruct the server to stop listening so
     // it can be cleanly exited.
@@ -72,10 +65,24 @@ public:
       return;
     }
 
+    if (msg->get_payload() == "game") {
+      std::cout << "registered game\n";
+      game = endpoint.get_con_from_hdl(hdl);
+      return;
+    }
+
+    if (msg->get_payload() == "user") {
+      std::cout << "registered user\n";
+      user = endpoint.get_con_from_hdl(hdl);
+      return;
+    }
+
     try {
-      for(auto it : connections)
-      endpoint.send(it, msg->get_payload(), msg->get_opcode());
-    } catch (websocketpp::exception const & e) {
+      if (endpoint.get_con_from_hdl(hdl) == user)
+        endpoint.send(game, msg->get_payload(), msg->get_opcode());
+      else if (endpoint.get_con_from_hdl(hdl) == game)
+        endpoint.send(user, msg->get_payload(), msg->get_opcode());
+    } catch (websocketpp::exception const &e) {
       std::cout << "Echo failed because: "
                 << "(" << e.what() << ")" << std::endl;
     }
@@ -84,10 +91,14 @@ public:
 private:
   ws_server endpoint;
 
+  //websocketpp::endpoint<websocketpp::connection<websocketpp::config::asio>, websocketpp::config::asio> endpoint;
+
   using connection_list = std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>>;
   connection_list connections;
+
+  websocketpp::connection<websocketpp::config::asio>::ptr game;
+  //websocketpp::connection_hdl
+  websocketpp::connection<websocketpp::config::asio>::ptr user;
 };
-
-
 
 #endif//JSBRIDGE_JSBRIDGE_LIB_SERVER_SERVER_H_
