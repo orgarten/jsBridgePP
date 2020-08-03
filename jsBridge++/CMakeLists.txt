@@ -1,1 +1,1 @@
-add_library(bridge_lib server/Server.cpp client/Client.cpp)
+add_library(bridge_lib bridge/Bridge.cpp client/Client.cpp)
