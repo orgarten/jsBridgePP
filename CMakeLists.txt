@@ -15,6 +15,7 @@ include(cmake/cache_options.cmake)
 ###################################################################
 # Compiler Flags
 set(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_FLAGS -pthread)
 IF (CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options(-std=c++17 -O3 -Wall -fPIC -funroll-loops -march=native)
 ELSEIF (MSVC)
