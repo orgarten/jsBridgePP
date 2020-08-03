@@ -2,10 +2,10 @@
 // Created by orell on 7/21/20.
 //
 #include <iostream>
-#include <server/Server.h>
+#include <bridge/Bridge.h>
 
 int main() {
-  Server server{};
+  Bridge server{};
   server.run(9002);
   return 0;
 }
