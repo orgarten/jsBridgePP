@@ -1,5 +1,5 @@
 IF(BUILD_SERVER)
-    add_subdirectory(server)
+    add_subdirectory(bridge)
 ENDIF()
 
 IF(BUILD_CLIENT)

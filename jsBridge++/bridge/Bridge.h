@@ -22,10 +22,10 @@ using websocketpp::lib::placeholders::_2;
 // pull out the type of messages sent by our config
 typedef ws_server::message_ptr message_ptr;
 
-class Server {
+class Bridge {
 public:
 public:
-  explicit Server() {
+  explicit Bridge() {
     // Set logging settings
     //endpoint.set_error_channels(websocketpp::log::elevel::all);
     //endpoint.set_access_channels(websocketpp::log::alevel::frame_payload);
@@ -35,9 +35,9 @@ public:
     // Initialize Asio
     endpoint.init_asio();
 
-    endpoint.set_open_handler(bind(&Server::on_open, this, ::_1));
-    endpoint.set_close_handler(bind(&Server::on_close, this, ::_1));
-    endpoint.set_message_handler(bind(&Server::on_message, this, ::_1, ::_2));
+    endpoint.set_open_handler(bind(&Bridge::on_open, this, ::_1));
+    endpoint.set_close_handler(bind(&Bridge::on_close, this, ::_1));
+    endpoint.set_message_handler(bind(&Bridge::on_message, this, ::_1, ::_2));
   }
 
   void run(const uint32_t port) {
@@ -58,7 +58,7 @@ public:
   void on_message(websocketpp::connection_hdl hdl, const message_ptr msg) {
     std::cout << "on_message called with hdl: " << hdl.lock().get() << " and message: " << msg->get_payload() << "\n";
 
-    // check for a special command to instruct the server to stop listening so
+    // check for a special command to instruct the bridge to stop listening so
     // it can be cleanly exited.
     if (msg->get_payload() == "stop") {
       endpoint.stop();
