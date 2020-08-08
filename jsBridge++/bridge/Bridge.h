@@ -88,6 +88,10 @@ public:
     }
   }
 
+  ~Bridge() {
+    endpoint.stop();
+  }
+
 private:
   ws_server endpoint;
 
