@@ -2,6 +2,8 @@
 // Created by orell on 7/21/20.
 //
 
+// TODO: client segfaults at the moment when connection is closed -> we need to handle this
+
 #ifndef JSBRIDGE_JSBRIDGE_LIB_CLIENT_CLIENT_H_
 #define JSBRIDGE_JSBRIDGE_LIB_CLIENT_CLIENT_H_
 
